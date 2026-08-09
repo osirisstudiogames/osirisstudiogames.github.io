@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sudoku Master — Reto compartido</title>
+<link rel="icon" type="image/png" href="../sudoku/favicon.png">
+<link rel="apple-touch-icon" href="../sudoku/favicon.png">
+<meta name="theme-color" content="#1565C0">
+<meta name="description" content="Alguien te ha retado a resolver este Sudoku en Sudoku Master: Classic Logic. Instala la app para abrirlo. / Someone challenged you to solve this Sudoku in Sudoku Master: Classic Logic. Install the app to open it.">
+
+<!-- Link-preview metadata for chat apps (WhatsApp, Telegram, iMessage, etc.) -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="¡Te han retado a un Sudoku!">
+<meta property="og:description" content="Alguien quiere que resuelvas este mismo puzzle en Sudoku Master. Toca para abrirlo.">
+<meta property="og:url" content="https://osirisstudiogames.github.io/play/">
+<meta property="og:image" content="https://osirisstudiogames.github.io/play/preview.png">
+<meta name="twitter:card" content="summary_large_image">
+
+<style>
+  :root {
+    color-scheme: light dark;
+    --blue: #1565C0;
+    --bg: #ffffff;
+    --fg: #212121;
+    --muted: #757575;
+    --card: #F5F7FA;
+    --border: #E0E6EF;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #121212;
+      --fg: #F5F5F5;
+      --muted: #B0B0B0;
+      --card: #1E1E1E;
+      --border: #2A2A2A;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    min-height: 100%;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: -apple-system, Roboto, "Segoe UI", Helvetica, Arial, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .card {
+    max-width: 420px;
+    width: 100%;
+    text-align: center;
+  }
+  .icon {
+    width: 88px;
+    height: 88px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+  }
+  h1 {
+    font-size: 22px;
+    margin: 0 0 8px;
+  }
+  p.sub {
+    color: var(--muted);
+    margin: 0 0 24px;
+    line-height: 1.5;
+  }
+  .diff-chip {
+    display: inline-block;
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--blue);
+    font-weight: 700;
+    padding: 8px 20px;
+    border-radius: 999px;
+    margin-bottom: 24px;
+    letter-spacing: 0.3px;
+  }
+  a.btn {
+    display: block;
+    background: var(--blue);
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+    padding: 14px 20px;
+    border-radius: 12px;
+    margin-bottom: 12px;
+  }
+  a.btn.secondary {
+    background: transparent;
+    color: var(--blue);
+    border: 1px solid var(--border);
+  }
+  footer {
+    margin-top: 28px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+  [data-i18n-en] { display: none; }
+  html[lang="en"] [data-i18n-es] { display: none; }
+  html[lang="en"] [data-i18n-en] { display: inline; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <img class="icon" src="icon.png" alt="Sudoku Master" onerror="this.style.display='none'">
+    <h1>
+      <span data-i18n-es>¡Te han retado a un Sudoku!</span>
+      <span data-i18n-en>You've been challenged to a Sudoku!</span>
+    </h1>
+    <p class="sub">
+      <span data-i18n-es>Alguien quiere que resuelvas exactamente este mismo puzzle en Sudoku Master.</span>
+      <span data-i18n-en>Someone wants you to solve this exact puzzle in Sudoku Master.</span>
+    </p>
+
+    <div id="diffChip" class="diff-chip" style="display:none"></div>
+
+    <a class="btn" id="storeLink" href="https://play.google.com/store/apps/details?id=com.osirisstudio.sudokumaster">
+      <span data-i18n-es>Abrir en Google Play</span>
+      <span data-i18n-en>Open on Google Play</span>
+    </a>
+    <a class="btn secondary" id="retryLink" href="#">
+      <span data-i18n-es>Ya tengo la app — reintentar</span>
+      <span data-i18n-en>I already have the app — retry</span>
+    </a>
+
+    <footer>Sudoku Master · Classic Logic Puzzle — oSiRiS Studio</footer>
+  </div>
+
+  <script>
+    // Best-effort language: Spanish default, English if the browser prefers it.
+    if ((navigator.language || "").toLowerCase().startsWith("en")) {
+      document.documentElement.lang = "en";
+    }
+
+    // Re-offer the current URL — useful if the visitor only just installed the app;
+    // tapping this re-triggers Android's verified App Link resolution.
+    document.getElementById("retryLink").href = window.location.href;
+
+    // Show the difficulty name (if present in the shared link) without needing the app.
+    var DIFFICULTY_LABELS = {
+      beginner:     { es: "Principiante", en: "Beginner" },
+      easy:         { es: "Fácil",        en: "Easy" },
+      medium:       { es: "Medio",        en: "Medium" },
+      hard:         { es: "Difícil",      en: "Hard" },
+      expert:       { es: "Experto",      en: "Expert" },
+      master:       { es: "Maestro",      en: "Master" },
+      quick_easy:   { es: "Rápido · Fácil",  en: "Quick · Easy" },
+      quick_medium: { es: "Rápido · Medio",  en: "Quick · Medium" },
+      quick_hard:   { es: "Rápido · Difícil", en: "Quick · Hard" },
+    };
+    var params = new URLSearchParams(window.location.search);
+    var d = params.get("d");
+    var label = d && DIFFICULTY_LABELS[d];
+    if (label) {
+      var lang = document.documentElement.lang === "en" ? "en" : "es";
+      var chip = document.getElementById("diffChip");
+      chip.textContent = label[lang];
+      chip.style.display = "inline-block";
+    }
+  </script>
+</body>
+</html>

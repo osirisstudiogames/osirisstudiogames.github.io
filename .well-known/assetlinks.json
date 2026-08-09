@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.osirisstudio.sudokumaster",
+      "sha256_cert_fingerprints": [
+        "AE:BA:7F:C7:B5:49:E0:EE:26:37:D4:F0:8F:F4:40:33:B7:4B:97:17:42:26:5D:BA:55:21:23:37:E7:70:37:6A"
+      ]
+    }
+  }
+]
