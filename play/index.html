@@ -81,10 +81,12 @@
   }
   a.btn {
     display: block;
+    width: 100%;
     background: var(--blue);
     color: #fff;
     text-decoration: none;
     font-weight: 600;
+    font-size: 16px;
     padding: 14px 20px;
     border-radius: 12px;
     margin-bottom: 12px;
@@ -123,8 +125,8 @@
       <span data-i18n-en>Open on Google Play</span>
     </a>
     <a class="btn secondary" id="retryLink" href="#">
-      <span data-i18n-es>Ya tengo la app — reintentar</span>
-      <span data-i18n-en>I already have the app — retry</span>
+      <span data-i18n-es>Ya tengo la app — abrir puzzle</span>
+      <span data-i18n-en>I already have the app — open puzzle</span>
     </a>
 
     <footer>Sudoku Master · Classic Logic Puzzle — oSiRiS Studio</footer>
@@ -136,14 +138,24 @@
       document.documentElement.lang = "en";
     }
 
-    // Re-offer the current URL — useful if the visitor only just installed the app.
-    // A URL identical to the current page doesn't reliably re-trigger Android's
-    // App Link intent resolution (the browser just treats it as a same-page reload),
-    // so we append a throwaway cache-busting param to force a fresh navigation.
-    // MainActivity only reads p/s/d from the query string, so this extra param is harmless.
-    var retryUrl = new URL(window.location.href);
-    retryUrl.searchParams.set("_retry", Date.now());
-    document.getElementById("retryLink").href = retryUrl.toString();
+    // A plain re-navigation to the same https:// URL from a click INSIDE a page
+    // already open in Chrome is not guaranteed to re-trigger Android's verified
+    // App Link hand-off the way tapping it from an external app (WhatsApp,
+    // Telegram...) does — that's a deliberate Chrome restriction.
+    // The `intent://` scheme is Chrome's own supported mechanism for exactly this
+    // "open in app, or fall back to this page" case (same technique YouTube/X use
+    // for their web "open app" buttons): it explicitly asks Android to launch our
+    // package, bypassing the ambient App-Links heuristics entirely, and Chrome
+    // itself falls back to browser_fallback_url if the app isn't installed.
+    (function () {
+      var currentUrl     = window.location.href;
+      var withoutScheme  = currentUrl.replace(/^https?:\/\//, "");
+      var intentUrl =
+        "intent://" + withoutScheme +
+        "#Intent;scheme=https;package=com.osirisstudio.sudokumaster;" +
+        "S.browser_fallback_url=" + encodeURIComponent(currentUrl) + ";end";
+      document.getElementById("retryLink").href = intentUrl;
+    })();
 
     // Show the difficulty name (if present in the shared link) without needing the app.
     var DIFFICULTY_LABELS = {
