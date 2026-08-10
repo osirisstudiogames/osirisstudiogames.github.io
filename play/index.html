@@ -136,9 +136,14 @@
       document.documentElement.lang = "en";
     }
 
-    // Re-offer the current URL — useful if the visitor only just installed the app;
-    // tapping this re-triggers Android's verified App Link resolution.
-    document.getElementById("retryLink").href = window.location.href;
+    // Re-offer the current URL — useful if the visitor only just installed the app.
+    // A URL identical to the current page doesn't reliably re-trigger Android's
+    // App Link intent resolution (the browser just treats it as a same-page reload),
+    // so we append a throwaway cache-busting param to force a fresh navigation.
+    // MainActivity only reads p/s/d from the query string, so this extra param is harmless.
+    var retryUrl = new URL(window.location.href);
+    retryUrl.searchParams.set("_retry", Date.now());
+    document.getElementById("retryLink").href = retryUrl.toString();
 
     // Show the difficulty name (if present in the shared link) without needing the app.
     var DIFFICULTY_LABELS = {
